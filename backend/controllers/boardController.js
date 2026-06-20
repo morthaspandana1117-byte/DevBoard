@@ -66,8 +66,83 @@ const getBoardById = async (req, res) => {
   }
 };
 
+const updateBoard = async (req, res) => {
+  try {
+
+    const board = await Board.findById(
+      req.params.id
+    );
+
+    if (!board) {
+      return res.status(404).json({
+        message: 'Board not found',
+      });
+    }
+
+    if (
+      board.owner.toString() !==
+      req.user._id.toString()
+    ) {
+      return res.status(403).json({
+        message: 'Access denied',
+      });
+    }
+
+    board.title =
+      req.body.title || board.title;
+
+    const updatedBoard =
+      await board.save(); //Saves the changes permanently to MongoDB. 
+
+
+    res.json(updatedBoard);
+
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+const deleteBoard = async (req, res) => {
+  try {
+
+    const board = await Board.findById(
+      req.params.id
+    );
+
+    if (!board) {
+      return res.status(404).json({
+        message: 'Board not found',
+      });
+    }
+
+    if (
+      board.owner.toString() !==
+      req.user._id.toString()
+    ) {
+      return res.status(403).json({
+        message: 'Access denied',
+      });
+    }
+
+    await board.deleteOne();
+
+    res.json({
+      message: 'Board deleted successfully',
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   createBoard,
   getBoards,
   getBoardById,
+  updateBoard,
+  deleteBoard,
 };
