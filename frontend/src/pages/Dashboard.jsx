@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import client from '../api/client';
 
 function Dashboard() {
   const [boards, setBoards] = useState([]);
   const [title, setTitle] = useState('');
+  const  navigate = useNavigate();
 
   useEffect(() => {
     const fetchBoards = async () => {
@@ -61,7 +63,14 @@ function Dashboard() {
       
       {boards.map((board) => (
         <div key={board._id}>
-          <h3>{board.title}</h3>
+          <h3
+            onClick={()=>
+              navigate(`/boards/${board._id}`)
+            }
+            style={{ cursor: 'pointer' }}
+          >
+            {board.title}
+          </h3>
         </div>
       ))}
     </div>
