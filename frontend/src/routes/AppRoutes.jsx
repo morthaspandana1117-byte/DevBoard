@@ -4,6 +4,8 @@ import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Dashboard from '../pages/Dashboard';
 import BoardDetails from '../pages/BoardDetails';
+import EditBoard from '../pages/EditBoard';
+import EditTask from '../pages/EditTask';
 
 function AppRoutes() {
   return (
@@ -24,6 +26,17 @@ function AppRoutes() {
         path="/boards/:boardId"
         element={<BoardDetails />}
       />
+
+      <Route
+        path="/boards/edit/:boardId"
+        element={<EditBoard />}
+      />
+
+      <Route
+        path="/boards/:boardId/tasks/edit/:taskId"
+        element={<EditTask />}
+      />
+
     </Routes>
   );
 }

@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import client from '../api/client';
 
 function BoardDetails() {
   const { boardId } = useParams();
-
+  const navigate = useNavigate();
   const [tasks, setTasks] = useState([]);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -29,25 +30,50 @@ function BoardDetails() {
   }, [boardId]);
 
   const createTask = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    const response = await client.post('/tasks', {
-      title,
-      description,
-      board: boardId,
-    });
+    try {
+      const response = await client.post('/tasks', {
+        title,
+        description,
+        board: boardId,
+      });
 
-    console.log(response.data);
+      console.log(response.data);
 
-    setTasks([...tasks, response.data]);
-    setTitle('');
-    setDescription('');
+      setTasks([...tasks, response.data]);
+      setTitle('');
+      setDescription('');
 
-  } catch (error) {
-    console.log(error.response?.data);
-  }
-};
+    } catch (error) {
+      console.log(error.response?.data);
+    }
+  };
+
+  const deleteTask = async (taskId) => {
+
+    try {
+        const confirmDelete = window.confirm(
+          "Are you sure you want to delete this task?"
+        );
+        if (!confirmDelete) {
+          return;
+        }
+        await client.delete(`/tasks/${taskId}`);
+        setTasks(
+          tasks.filter(
+              (task) => task._id !== taskId
+          )
+      );
+    } catch (error) {
+        console.log(error.response?.data);
+
+        alert(
+            error.response?.data?.message ||
+            'DeleteFailed'
+            );
+    }
+  };
 
   return (
     <div>
@@ -82,6 +108,20 @@ function BoardDetails() {
       {tasks.map((task) => (
         <div key={task._id}>
           <p>{task.title}</p>
+          <h3
+            onClick={()=>
+              navigate(`/boards/${boardId}/tasks/edit/${task._id}`)
+            }
+            style={{cursor: 'pointer'}}
+          >
+            🖋️Edit
+          </h3>
+          <h3
+            onClick={() => deleteTask(task._id)}
+            style={{cursor: 'pointer'}}
+          >
+            🗑️Delete
+          </h3>
         </div>
       ))}
     </div>

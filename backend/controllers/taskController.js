@@ -65,6 +65,31 @@ const getTask = async (req, res) => {
         });
     }
 };
+const getTaskById = async (req, res) => {
+    try {
+        const task = await Task.findById(req.params.id);
+
+        if (!task) {
+            return res.status(404).json({
+                message: 'Task not found',
+            });
+        }
+
+        const board = await Board.findById(task.board);
+
+        if (board.owner.toString() !== req.user._id.toString()) {
+            return res.status(403).json({
+                message: 'Access denied',
+            });
+        }
+
+        res.json(task);
+    } catch (error) {
+        res.status(500).json({
+            message: error.message,
+        });
+    }
+};
 const updateTask = async (req, res) => {
     try{
 
@@ -97,7 +122,6 @@ const updateTask = async (req, res) => {
         });
     }
 };
-
 
 const deleteTask = async (req, res) => {
     try{
@@ -134,6 +158,7 @@ const deleteTask = async (req, res) => {
 module.exports = {
     createTask,
     getTask,
+    getTaskById,
     updateTask,
     deleteTask,
 }

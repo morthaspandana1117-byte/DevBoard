@@ -41,6 +41,31 @@ function Dashboard() {
     }
   };
 
+  const deleteBoard = async (boardId) => {
+
+    try {
+        const confirmDelete = window.confirm(
+          "Are you sure you want to delete this board?"
+        );
+        if (!confirmDelete) {
+          return;
+        }
+        await client.delete(`/boards/${boardId}`);
+        setBoards(
+          boards.filter(
+              (board) => board._id !== boardId
+          )
+      );
+    } catch (error) {
+        console.log(error.response?.data);
+
+        alert(
+            error.response?.data?.message ||
+            'DeleteFailed'
+            );
+    }
+  };
+
   return (
     <div>
       <h1>Dashboard</h1>
@@ -69,7 +94,21 @@ function Dashboard() {
             }
             style={{ cursor: 'pointer' }}
           >
-            {board.title}
+            {board.title}   
+          </h3>
+          <h3
+            onClick={()=>
+              navigate(`/boards/edit/${board._id}`)
+            }
+            style={{cursor: 'pointer'}}
+          >
+            🖋️Edit
+          </h3>
+          <h3
+            onClick={() => deleteBoard(board._id)}
+            style={{cursor: 'pointer'}}
+          >
+            🗑️Delete
           </h3>
         </div>
       ))}
