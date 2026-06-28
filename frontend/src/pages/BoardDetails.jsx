@@ -1,28 +1,25 @@
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
-import client from '../api/client';
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
+import client from "../api/client";
 
 function BoardDetails() {
   const { boardId } = useParams();
-  const navigate = useNavigate();
   const [tasks, setTasks] = useState([]);
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await client.get(
-          `/tasks/board/${boardId}`
-        );
-
-        console.log(response.data);
+        const response = await client.get(`/tasks/board/${boardId}`);
 
         setTasks(response.data);
-
       } catch (error) {
-        console.log(error.response?.data);
+        alert(error.response?.data?.message || "Fetching tasks Failed");
       }
     };
 
@@ -33,45 +30,32 @@ function BoardDetails() {
     e.preventDefault();
 
     try {
-      const response = await client.post('/tasks', {
+      const response = await client.post("/tasks", {
         title,
         description,
         board: boardId,
       });
 
-      console.log(response.data);
-
       setTasks([...tasks, response.data]);
-      setTitle('');
-      setDescription('');
-
+      setTitle("");
+      setDescription("");
     } catch (error) {
-      console.log(error.response?.data);
+      alert(error.response?.data?.message || "Creating Task Failed");
     }
   };
 
   const deleteTask = async (taskId) => {
-
     try {
-        const confirmDelete = window.confirm(
-          "Are you sure you want to delete this task?"
-        );
-        if (!confirmDelete) {
-          return;
-        }
-        await client.delete(`/tasks/${taskId}`);
-        setTasks(
-          tasks.filter(
-              (task) => task._id !== taskId
-          )
+      const confirmDelete = window.confirm(
+        "Are you sure you want to delete this task?",
       );
+      if (!confirmDelete) {
+        return;
+      }
+      await client.delete(`/tasks/${taskId}`);
+      setTasks(tasks.filter((task) => task._id !== taskId));
     } catch (error) {
-        console.log(error.response?.data);
-
-        alert(
-            error.response?.data?.message ||
-            'DeleteFailed'
-            );
+      alert(error.response?.data?.message || "DeleteFailed");
     }
   };
 
@@ -81,25 +65,25 @@ function BoardDetails() {
 
       <form onSubmit={createTask}>
         <input
-            type="text"
-            placeholder="Task Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+          type="text"
+          placeholder="Task Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
         />
 
-        <br /><br />
+        <br />
+        <br />
 
         <textarea
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
         />
 
-        <br /><br />
+        <br />
+        <br />
 
-        <button type="submit">
-            Create Task
-        </button>
+        <button type="submit">Create Task</button>
       </form>
 
       <hr />
@@ -108,22 +92,24 @@ function BoardDetails() {
       {tasks.map((task) => (
         <div key={task._id}>
           <p>{task.title}</p>
+          <p>{task.description}</p>
           <h3
-            onClick={()=>
+            onClick={() =>
               navigate(`/boards/${boardId}/tasks/edit/${task._id}`)
             }
-            style={{cursor: 'pointer'}}
+            style={{ cursor: "pointer" }}
           >
             🖋️Edit
           </h3>
           <h3
             onClick={() => deleteTask(task._id)}
-            style={{cursor: 'pointer'}}
+            style={{ cursor: "pointer" }}
           >
             🗑️Delete
           </h3>
         </div>
       ))}
+      <button onClick={() => navigate("/dashboard")}>⬅️ Dashboard</button>
     </div>
   );
 }

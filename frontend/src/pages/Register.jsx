@@ -1,80 +1,66 @@
-import { useState } from 'react';
-import client from '../api/client';
+import { useState } from "react";
+import {useNavigate } from "react-router-dom";
 
+import client from "../api/client";
 
 function Register() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    const response = await client.post(
-      '/auth/register',
-      {
+    try {
+      const response = await client.post("/auth/register", {
         name,
         email,
         password,
-      }
-    );
+      });
 
-    console.log(response.data);
-
-    alert('Registration Successful');
-
-  } catch (error) {
-    console.log(error.response?.data);
-
-    alert(
-      error.response?.data?.message ||
-      'Registration Failed'
-    );
-  }
-};
+      alert("Registration Successful");
+      navigate("/");
+    } catch (error) {
+      alert(error.response?.data?.message || "Registration Failed");
+    }
+  };
 
   return (
     <div>
       <h1>Register</h1>
       <form onSubmit={handleSubmit}>
         <input
-            type="text"
-            placeholder="Name"
-            value={name}
-            onChange={(e) =>
-            setName(e.target.value)
-            }
+          type="text"
+          placeholder="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
         />
 
-        <br /><br />
+        <br />
+        <br />
 
         <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) =>
-            setEmail(e.target.value)
-            }
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
 
-        <br /><br />
+        <br />
+        <br />
 
         <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) =>
-            setPassword(e.target.value)
-            }
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
 
-        <br /><br />
+        <br />
+        <br />
 
-        <button type="submit">
-            Register
-        </button>
-
+        <button type="submit">Register</button>
       </form>
     </div>
   );

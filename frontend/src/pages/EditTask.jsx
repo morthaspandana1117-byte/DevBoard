@@ -1,26 +1,25 @@
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
-import client from '../api/client';
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+
+import client from "../api/client";
 
 function EditTask() {
   const { taskId, boardId } = useParams();
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+
   const navigate = useNavigate();
-  const [title, setTitle] = useState('');
 
   useEffect(() => {
     const fetchTaskDetails = async () => {
       try {
-        const response = await client.get(
-          `/tasks/${taskId}`
-        );
-
-        console.log(response.data);
+        const response = await client.get(`/tasks/${taskId}`);
 
         setTitle(response.data.title);
-
+        setDescription(response.data.description);
       } catch (error) {
-        console.log(error.response?.data);
+        alert(error.response?.data?.message || "Fetching task details Failed");
       }
     };
 
@@ -28,24 +27,19 @@ function EditTask() {
   }, [taskId]);
 
   const updateTask = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    const response = await client.put(`/tasks/${taskId}`, {
-      title
-    });
+    try {
+      const response = await client.put(`/tasks/${taskId}`, {
+        title,
+        description,
+      });
 
-    console.log(response.data);
-    navigate(`/boards/${boardId}`);
-  } catch (error) {
-    console.log(error.response?.data);
-
-    alert(
-        error.response?.data?.message ||
-        'Update Failed'
-        );
-  }
-};
+      navigate(`/boards/${boardId}`);
+    } catch (error) {
+      alert(error.response?.data?.message || "Update Failed");
+    }
+  };
 
   return (
     <div>
@@ -53,20 +47,30 @@ function EditTask() {
 
       <form onSubmit={updateTask}>
         <input
-            type="text"
-            placeholder="Task Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+          type="text"
+          placeholder="Task Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
         />
 
-        <br /><br />
+        <br />
+        <br />
 
-        <button type="submit">
-            Update Task
-        </button>
+        <input
+          type="text"
+          placeholder="Task Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+
+        <button type="submit">Update Task</button>
       </form>
 
       <hr />
+
+      <button onClick={() => navigate(`/boards/${boardId}`)}>
+        ⬅️ Board Details
+      </button>
     </div>
   );
 }

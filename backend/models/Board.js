@@ -1,22 +1,22 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const boardSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: [true, 'Board title is required'],
+      required: [true, "Board title is required"],
       trim: true,
     },
 
     owner: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-module.exports = mongoose.model('Board', boardSchema);
+module.exports = mongoose.model("Board", boardSchema);
