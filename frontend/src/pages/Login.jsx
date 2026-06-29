@@ -27,32 +27,53 @@ function Login() {
   };
 
   return (
-    <div>
-      <h1>Login</h1>
+    <div className="auth-page">
+      <div className="auth-card">
+        <div className="brand-mark">D</div>
+        <h1>DevBoard</h1>
+        <p className="auth-subtitle">Manage your projects efficiently.</p>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        <form className="form-stack" onSubmit={handleSubmit}>
+          <div className="field-group">
+            <label htmlFor="login-email">Email</label>
+            <input
+              id="login-email"
+              className="input-control"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
 
-        <br />
-        <br />
+          <div className="field-group">
+            <label htmlFor="login-password">Password</label>
+            <input
+              id="login-password"
+              className="input-control"
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+          <button className="btn btn-primary btn-full" type="submit">
+            Login
+          </button>
+          <button
+            className="btn btn-secondary btn-full"
+            type="button"
+            onClick={() => navigate("/register")}
+          >
+            Register
+          </button>
+        </form>
+      </div>
 
-        <br />
-        <br />
-
-        <button type="submit">Login</button> <button type="button" onClick={() => navigate("/register")}>Register First</button>
-      </form>
+      <footer className="app-footer">
+        Built with love using React, Express and MongoDB.
+      </footer>
     </div>
   );
 }

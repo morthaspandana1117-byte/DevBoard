@@ -42,35 +42,54 @@ function EditTask() {
   };
 
   return (
-    <div>
-      <h1>🖋️Edit Task</h1>
+    <div className="center-page">
+      <div className="edit-card">
+        <div className="section-heading centered">
+          <h1>Edit Task</h1>
+          <p>Refine the title and description for this task.</p>
+        </div>
 
-      <form onSubmit={updateTask}>
-        <input
-          type="text"
-          placeholder="Task Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
+        <form className="form-stack" onSubmit={updateTask}>
+          <div className="field-group">
+            <label htmlFor="edit-task-title">Title</label>
+            <input
+              id="edit-task-title"
+              className="input-control"
+              type="text"
+              placeholder="Task Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </div>
 
-        <br />
-        <br />
+          <div className="field-group">
+            <label htmlFor="edit-task-description">Description</label>
+            <input
+              id="edit-task-description"
+              className="input-control"
+              type="text"
+              placeholder="Task Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
 
-        <input
-          type="text"
-          placeholder="Task Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
+          <button className="btn btn-primary btn-full" type="submit">
+            Update Task
+          </button>
+        </form>
 
-        <button type="submit">Update Task</button>
-      </form>
+        <button
+          className="btn btn-outline btn-full"
+          onClick={() => navigate(`/boards/${boardId}`)}
+        >
+          Back to Board
+        </button>
+      </div>
 
-      <hr />
-
-      <button onClick={() => navigate(`/boards/${boardId}`)}>
-        ⬅️ Board Details
-      </button>
+      <footer className="app-footer">
+        Built with love using React, Express and MongoDB.
+      </footer>
     </div>
   );
 }

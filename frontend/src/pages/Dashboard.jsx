@@ -53,43 +53,88 @@ function Dashboard() {
   };
 
   return (
-    <div>
-      <h1>Dashboard</h1>
-
-      <form onSubmit={createBoard}>
-        <input
-          type="text"
-          placeholder="Enter title name"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-
-        <button type="Submit">Create Board</button>
-      </form>
-
-      {boards.map((board) => (
-        <div key={board._id}>
-          <h3
-            onClick={() => navigate(`/boards/${board._id}`)}
-            style={{ cursor: "pointer" }}
-          >
-            {board.title}
-          </h3>
-          <h3
-            onClick={() => navigate(`/boards/edit/${board._id}`)}
-            style={{ cursor: "pointer" }}
-          >
-            🖋️Edit
-          </h3>
-          <h3
-            onClick={() => deleteBoard(board._id)}
-            style={{ cursor: "pointer" }}
-          >
-            🗑️Delete
-          </h3>
+    <div className="app-shell">
+      <header className="app-header">
+        <div className="brand">
+          <div className="brand-mark">D</div>
+          <div>
+            <h1>DevBoard</h1>
+            <p>Welcome back. Keep your work moving.</p>
+          </div>
         </div>
-      ))}
-      <button onClick={() => navigate("/")}>⬅️ Logout</button>
+        <button className="btn btn-logout" onClick={() => navigate("/")}>
+          Logout
+        </button>
+      </header>
+
+      <main className="page-content">
+        <section className="panel">
+          <div className="section-heading">
+            <h2>Create Board</h2>
+            <p>Start a new workspace for tasks, ideas, or sprint planning.</p>
+          </div>
+
+          <form className="create-form" onSubmit={createBoard}>
+            <input
+              className="input-control"
+              type="text"
+              placeholder="Enter board title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+
+            <button className="btn btn-primary" type="Submit">
+              Create Board
+            </button>
+          </form>
+        </section>
+
+        <section>
+          <div className="section-heading">
+            <h2>Boards</h2>
+            <p>Open a board to manage its tasks.</p>
+          </div>
+
+          {boards.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-icon">Folder</div>
+              <h3>No boards yet</h3>
+              <p>Create your first board.</p>
+            </div>
+          ) : (
+            <div className="board-grid">
+              {boards.map((board) => (
+                <div className="board-card" key={board._id}>
+                  <button
+                    className="card-title-button"
+                    onClick={() => navigate(`/boards/${board._id}`)}
+                  >
+                    {board.title}
+                  </button>
+                  <div className="card-actions">
+                    <button
+                      className="btn btn-edit"
+                      onClick={() => navigate(`/boards/edit/${board._id}`)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => deleteBoard(board._id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      </main>
+
+      <footer className="app-footer">
+        Built with love using React, Express and MongoDB.
+      </footer>
     </div>
   );
 }

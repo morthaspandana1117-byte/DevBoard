@@ -39,25 +39,39 @@ function EditBoard() {
   };
 
   return (
-    <div>
-      <h1>🖋️Edit Board</h1>
+    <div className="center-page">
+      <div className="edit-card">
+        <div className="section-heading centered">
+          <h1>Edit Board</h1>
+          <p>Update the board title and return to your dashboard.</p>
+        </div>
 
-      <form onSubmit={updateBoard}>
-        <input
-          type="text"
-          placeholder="Board Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
+        <form className="form-stack" onSubmit={updateBoard}>
+          <div className="field-group">
+            <label htmlFor="board-title">Board Title</label>
+            <input
+              id="board-title"
+              className="input-control"
+              type="text"
+              placeholder="Board Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </div>
 
-        <br />
-        <br />
+          <button className="btn btn-primary btn-full" type="submit">
+            Update Board
+          </button>
+        </form>
 
-        <button type="submit">Update Board</button>
-      </form>
+        <button className="btn btn-outline btn-full" onClick={() => navigate("/dashboard")}>
+          Back to Dashboard
+        </button>
+      </div>
 
-      <hr />
-      <button onClick={() => navigate("/dashboard")}>⬅️ Dashboard</button>
+      <footer className="app-footer">
+        Built with love using React, Express and MongoDB.
+      </footer>
     </div>
   );
 }
