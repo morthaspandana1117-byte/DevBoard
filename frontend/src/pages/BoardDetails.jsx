@@ -129,7 +129,13 @@ function BoardDetails() {
                   <div className="task-card-header">
                     <h3>{task.title}</h3>
                     {task.status && (
-                      <span className="status-badge">{task.status}</span>
+                      <span className={`status-badge ${task.status}`}>
+                        {task.status === "todo"
+                          ? "🟡 To Do"
+                          : task.status === "in-progress"
+                          ? "🔵 In Progress"
+                          : "🟢 Done"}
+                      </span>
                     )}
                   </div>
                   <p>{task.description}</p>

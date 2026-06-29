@@ -8,6 +8,7 @@ function EditTask() {
   const { taskId, boardId } = useParams();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [status, setStatus] = useState("todo");
 
   const navigate = useNavigate();
 
@@ -18,6 +19,7 @@ function EditTask() {
 
         setTitle(response.data.title);
         setDescription(response.data.description);
+        setStatus(response.data.status);
       } catch (error) {
         alert(error.response?.data?.message || "Fetching task details Failed");
       }
@@ -33,6 +35,7 @@ function EditTask() {
       const response = await client.put(`/tasks/${taskId}`, {
         title,
         description,
+        status,
       });
 
       navigate(`/boards/${boardId}`);
@@ -64,14 +67,30 @@ function EditTask() {
 
           <div className="field-group">
             <label htmlFor="edit-task-description">Description</label>
-            <input
+            <textarea
               id="edit-task-description"
-              className="input-control"
-              type="text"
+              className="input-control textarea-control"
               placeholder="Task Description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
+          </div>
+
+          <div className="field-group">
+            <label htmlFor="edit-task-status">
+              Status
+            </label>
+
+            <select
+              id="edit-task-status"
+              className="input-control"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
+              <option value="todo">To Do</option>
+              <option value="in-progress">In Progress</option>
+              <option value="done">Done</option>
+            </select>
           </div>
 
           <button className="btn btn-primary btn-full" type="submit">
