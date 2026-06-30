@@ -19,6 +19,7 @@ function Login() {
       });
 
       localStorage.setItem("token", response.data.token);
+      window.dispatchEvent(new Event("auth:changed"));
 
       navigate("/dashboard");
     } catch (error) {

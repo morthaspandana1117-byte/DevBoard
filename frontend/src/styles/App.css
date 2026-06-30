@@ -39,6 +39,99 @@ button {
   border: 0;
 }
 
+.notification-shell {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1000;
+}
+
+.notification-bell {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+
+.notification-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--danger);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.notification-dropdown {
+  margin-top: 10px;
+  width: min(360px, calc(100vw - 24px));
+  max-height: 420px;
+  overflow: auto;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 12px;
+}
+
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.notification-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.notification-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+}
+
+.notification-item.unread {
+  border-color: rgba(37, 99, 235, 0.35);
+  background: rgba(37, 99, 235, 0.08);
+}
+
+.notification-item p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.notification-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.notification-empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 10px 0;
+}
+
 .auth-page,
 .center-page,
 .app-shell {
@@ -304,6 +397,13 @@ select.input-control {
   margin-bottom: 18px;
 }
 
+.section-heading-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
 .section-heading.centered {
   text-align: center;
 }
@@ -363,6 +463,99 @@ select.input-control {
   gap: 10px;
 }
 
+.meta-list {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 18px;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.project-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.project-meta > div,
+.member-row {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  background: #ffffff;
+}
+
+.project-meta > div,
+.member-row > div {
+  display: grid;
+  gap: 4px;
+}
+
+.project-meta span,
+.member-row span {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.meta-label {
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.alert {
+  margin: 0 0 18px;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-weight: 700;
+}
+
+.alert-success {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.alert-error {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.member-form {
+  margin-top: 18px;
+}
+
+.member-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.member-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(15, 23, 42, 0.42);
+}
+
+.modal {
+  width: min(100%, 430px);
+  border: 1px solid rgba(219, 228, 239, 0.75);
+  border-radius: var(--radius);
+  background: var(--card);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+  padding: 26px;
+}
+
 .task-card {
   display: flex;
   flex-direction: column;
@@ -419,6 +612,33 @@ select.input-control {
   place-items: center;
   padding: 44px 22px;
   text-align: center;
+}
+
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+.analytics-card {
+  min-height: 110px;
+  justify-content: center;
+}
+
+.analytics-card strong {
+  font-size: 1.45rem;
+  color: var(--text);
+}
+
+.analytics-label {
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.chart-wrapper {
+  width: 100%;
+  min-height: 320px;
 }
 
 .empty-state h3 {
@@ -482,6 +702,11 @@ select.input-control {
     grid-template-columns: 1fr;
   }
 
+  .section-heading-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
   .panel,
   .auth-card,
   .edit-card {
@@ -492,6 +717,10 @@ select.input-control {
   .form-action,
   .app-header .btn {
     width: 100%;
+  }
+
+  .analytics-grid {
+    grid-template-columns: 1fr;
   }
 
   .card-actions .btn {
