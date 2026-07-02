@@ -1,122 +1,187 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import { io } from "socket.io-client";
+import "react-toastify/dist/ReactToastify.css";
+
+import AppRoutes from "./routes/AppRoutes";
+import client from "./api/client";
+
+function decodeToken(token) {
+  try {
+    const payload = token.split(".")[1];
+    const base64 = payload.replace(/-/g, "+").replace(/_/g, "/");
+    return JSON.parse(atob(base64));
+  } catch {
+    return null;
+  }
+}
 
 function App() {
-  const [count, setCount] = useState(0)
+  const location = useLocation();
+  const [authToken, setAuthToken] = useState(() => localStorage.getItem("token"));
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const socketRef = useRef(null);
+
+  useEffect(() => {
+    const syncAuth = () => {
+      setAuthToken(localStorage.getItem("token"));
+    };
+
+    syncAuth();
+    window.addEventListener("auth:changed", syncAuth);
+
+    return () => window.removeEventListener("auth:changed", syncAuth);
+  }, [location.pathname]);
+
+  const token = authToken;
+  const currentUserId = useMemo(() => decodeToken(token)?.userId, [token]);
+  const unreadCount = notifications.filter((notification) => !notification.isRead).length;
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      if (!token) {
+        setNotifications([]);
+        return;
+      }
+
+      try {
+        const response = await client.get("/notifications");
+        setNotifications(response.data || []);
+      } catch {
+        setNotifications([]);
+      }
+    };
+
+    fetchNotifications();
+  }, [token]);
+
+  useEffect(() => {
+    if (!token || !currentUserId) {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+      return;
+    }
+
+    const socket = io("http://localhost:5000", {
+      withCredentials: true,
+      transports: ["websocket"],
+    });
+
+    socketRef.current = socket;
+
+    socket.on("connect", () => {
+      socket.emit("authenticate", currentUserId);
+    });
+
+    socket.on("notification", (notification) => {
+      setNotifications((prev) => [notification, ...prev]);
+      toast.info(notification.title, {
+        autoClose: 4000,
+      });
+    });
+
+    return () => {
+      socket.off("connect");
+      socket.off("notification");
+      socket.disconnect();
+      socketRef.current = null;
+    };
+  }, [currentUserId, token]);
+
+  const markAsRead = async (notificationId) => {
+    try {
+      await client.patch(`/notifications/${notificationId}/read`);
+      setNotifications((prev) =>
+        prev.map((notification) =>
+          notification._id === notificationId
+            ? { ...notification, isRead: true }
+            : notification,
+        ),
+      );
+    } catch {
+      // Ignore read-state errors.
+    }
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      const response = await client.patch("/notifications/read-all");
+      setNotifications(response.data || []);
+    } catch {
+      // Ignore read-state errors.
+    }
+  };
+
+  const deleteNotification = async (notificationId) => {
+    try {
+      await client.delete(`/notifications/${notificationId}`);
+      setNotifications((prev) =>
+        prev.filter((notification) => notification._id !== notificationId),
+      );
+    } catch {
+      // Ignore delete errors.
+    }
+  };
 
   return (
     <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+      {token && (
+        <div className="notification-shell">
+          <button
+            className="notification-bell"
+            onClick={() => setShowNotifications((prev) => !prev)}
+            type="button"
+          >
+            🔔
+            {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
+          </button>
 
-      <div className="ticks"></div>
+          {showNotifications && (
+            <div className="notification-dropdown">
+              <div className="notification-header">
+                <strong>Notifications</strong>
+                <button className="btn btn-secondary" onClick={markAllAsRead} type="button">
+                  Mark all read
+                </button>
+              </div>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+              <div className="notification-list">
+                {notifications.length === 0 ? (
+                  <p className="notification-empty">No notifications yet.</p>
+                ) : (
+                  notifications.map((notification) => (
+                    <div key={notification._id} className={`notification-item ${notification.isRead ? "" : "unread"}`}>
+                      <div>
+                        <strong>{notification.title}</strong>
+                        <p>{notification.message}</p>
+                      </div>
+                      <div className="notification-actions">
+                        {!notification.isRead && (
+                          <button className="btn btn-outline" onClick={() => markAsRead(notification._id)} type="button">
+                            Read
+                          </button>
+                        )}
+                        <button className="btn btn-danger" onClick={() => deleteNotification(notification._id)} type="button">
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          )}
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      )}
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
+      <AppRoutes />
+      <ToastContainer position="top-right" />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
