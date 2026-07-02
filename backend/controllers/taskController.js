@@ -15,13 +15,15 @@ const isBoardOwner = (board, userId) => {
 
 const createTask = async (req, res) => {
   try {
-    const { title, description, board, assignedTo } = req.body;
+    const { title, description, board, assignedTo, dueDate } = req.body;
 
     const task = await Task.create({
       title,
       description,
       board,
       assignedTo: assignedTo || null,
+      dueDate: dueDate ? new Date(dueDate) : null,
+      reminderSent: false,
     });
 
     const populatedTask = await populateTaskAssignedTo(Task.findById(task._id));
@@ -85,9 +87,10 @@ const updateTask = async (req, res) => {
   try {
     const task = req.task;
     const board = req.board;
-    const { title, description, status, assignedTo } = req.body;
+    const { title, description, status, assignedTo, dueDate } = req.body;
     const previousAssignedTo = task.assignedTo?.toString();
     const previousStatus = task.status;
+    const previousDueDate = task.dueDate?.toString();
 
     if (assignedTo !== undefined) {
       if (!isBoardOwner(board, req.user._id)) {
@@ -124,13 +127,19 @@ const updateTask = async (req, res) => {
     task.description = description ?? task.description;
     task.status = status ?? task.status;
 
+    if (dueDate !== undefined) {
+      task.dueDate = dueDate ? new Date(dueDate) : null;
+      task.reminderSent = false;
+    }
+
     const updatedTask = await task.save();
     const populatedTask = await populateTaskAssignedTo(Task.findById(updatedTask._id));
 
     const assignmentChanged = assignedTo !== undefined && previousAssignedTo !== task.assignedTo?.toString();
     const statusChanged = status !== undefined && previousStatus !== task.status;
+    const dueDateChanged = dueDate !== undefined && previousDueDate !== task.dueDate?.toString();
 
-    if (assignmentChanged || statusChanged) {
+    if (assignmentChanged || statusChanged || dueDateChanged) {
       const recipients = [req.user._id];
       if (task.assignedTo && task.assignedTo.toString() !== req.user._id.toString()) {
         recipients.push(task.assignedTo);

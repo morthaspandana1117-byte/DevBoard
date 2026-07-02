@@ -13,7 +13,8 @@ function Register() {
     e.preventDefault();
 
     try {
-      const response = await client.post("/auth/register", {
+      await client.post("/auth/register", {
+
         name,
         email,
         password,

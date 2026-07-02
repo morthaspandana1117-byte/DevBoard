@@ -27,6 +27,17 @@ const userSchema = new mongoose.Schema(
       enum: ["Admin", "Member"],
       default: "Member",
     },
+
+    reminderEnabled: {
+      type: Boolean,
+      default: true,
+    },
+
+    reminderTiming: {
+      type: String,
+      enum: ["30m", "1h", "6h", "1d"],
+      default: "1d",
+    },
   },
   {
     timestamps: true,

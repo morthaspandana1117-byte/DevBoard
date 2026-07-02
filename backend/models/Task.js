@@ -31,6 +31,16 @@ const taskSchema = new mongoose.Schema(
       default: null,
     },
 
+    dueDate: {
+      type: Date,
+      default: null,
+    },
+
+    reminderSent: {
+      type: Boolean,
+      default: false,
+    },
+
     attachments: [
       {
         filename: {

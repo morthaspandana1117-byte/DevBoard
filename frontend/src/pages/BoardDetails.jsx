@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
+import KanbanBoard from "../components/KanbanBoard";
+
 const getFileIcon = (fileName = "") => {
   const extension = fileName.split(".").pop()?.toLowerCase();
 
@@ -33,6 +35,7 @@ function BoardDetails() {
   const [currentUser, setCurrentUser] = useState(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [dueDate, setDueDate] = useState("");
   const [memberEmail, setMemberEmail] = useState("");
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [inviteMessage, setInviteMessage] = useState("");
@@ -70,11 +73,13 @@ function BoardDetails() {
         title,
         description,
         board: boardId,
+        dueDate: dueDate || null,
       });
 
       setTasks([...tasks, response.data]);
       setTitle("");
       setDescription("");
+      setDueDate("");
     } catch (error) {
       alert(error.response?.data?.message || "Creating Task Failed");
     }
@@ -265,6 +270,17 @@ function BoardDetails() {
               />
             </div>
 
+            <div className="field-group">
+              <label htmlFor="task-due-date">Due Date</label>
+              <input
+                id="task-due-date"
+                className="input-control"
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+              />
+            </div>
+
             <button className="btn btn-primary form-action" type="submit">
               Create Task
             </button>
@@ -283,101 +299,20 @@ function BoardDetails() {
               <p>Create your first task.</p>
             </div>
           ) : (
-            <div className="task-grid">
-              {tasks.map((task) => (
-                <div className="task-card" key={task._id}>
-                  <div className="task-card-header">
-                    <h3>{task.title}</h3>
-                    {task.status && (
-                      <span className={`status-badge ${task.status}`}>
-                        {task.status === "todo"
-                          ? "To Do"
-                          : task.status === "in-progress"
-                          ? "In Progress"
-                          : "Done"}
-                      </span>
-                    )}
-                  </div>
-                  <p>{task.description}</p>
-                  <div className="field-group">
-                    <label>Assigned To</label>
-                    <div className="input-control">
-                      👤 {task.assignedTo?.name || "Unassigned"}
-                    </div>
-                  </div>
-                  <div className="field-group">
-                    <label>Attachments</label>
-                    {task.attachments?.length ? (
-                      <div className="task-attachments-list">
-                        {task.attachments.map((attachment) => (
-                          <div className="attachment-item" key={attachment._id}>
-                            <div className="attachment-meta">
-                              <span>{getFileIcon(attachment.originalName)}</span>
-                              <div>
-                                <strong>{attachment.originalName}</strong>
-                                <div className="attachment-details">
-                                  {Math.round((attachment.fileSize || 0) / 1024)} KB • {new Date(attachment.uploadedAt).toLocaleDateString()}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="card-actions">
-                              <a
-                                className="btn btn-outline"
-                                href={`http://localhost:5000${attachment.filePath}`}
-                                target="_blank"
-                                rel="noreferrer"
-                              >
-                                Download
-                              </a>
-                              <button
-                                className="btn btn-danger"
-                                onClick={async () => {
-                                  const confirmDelete = window.confirm("Delete this attachment?");
-                                  if (!confirmDelete) {
-                                    return;
-                                  }
-
-                                  try {
-                                    await client.delete(`/tasks/${task._id}/attachment/${attachment._id}`);
-                                    const refreshed = await client.get(`/tasks/board/${boardId}`);
-                                    setTasks(refreshed.data);
-                                  } catch (error) {
-                                    alert(error.response?.data?.message || "Deleting attachment failed");
-                                  }
-                                }}
-                              >
-                                Delete
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="input-control">No attachments</div>
-                    )}
-                  </div>
-                  <div className="card-actions">
-                    <button
-                      className="btn btn-edit"
-                      onClick={() =>
-                        navigate(`/boards/${boardId}/tasks/edit/${task._id}`)
-                      }
-                    >
-                      Edit
-                    </button>
-                    {isOwner && (
-                      <button
-                        className="btn btn-danger"
-                        onClick={() => deleteTask(task._id)}
-                      >
-                        Delete
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+            <KanbanBoard
+              boardId={boardId}
+              tasks={tasks}
+              isOwner={isOwner}
+              navigate={navigate}
+              deleteTask={deleteTask}
+              setTasks={setTasks}
+              updateTaskStatusOnServer={async (taskId, nextStatus) => {
+                await client.put(`/tasks/${taskId}`, { status: nextStatus });
+              }}
+              getFileIcon={getFileIcon}
+            />
           )}
+
         </section>
       </main>
 

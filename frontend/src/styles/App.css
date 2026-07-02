@@ -607,6 +607,16 @@ select.input-control {
   color: #15803d;
 }
 
+.status-badge.warning {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.status-badge.danger {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
 .empty-state {
   display: grid;
   place-items: center;

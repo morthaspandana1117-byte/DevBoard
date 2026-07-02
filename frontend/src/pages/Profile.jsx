@@ -10,6 +10,8 @@ function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [reminderEnabled, setReminderEnabled] = useState(true);
+  const [reminderTiming, setReminderTiming] = useState("1d");
 
   const [alertMessage, setAlertMessage] = useState("");
   const [alertError, setAlertError] = useState("");
@@ -26,6 +28,8 @@ function Profile() {
       if (!isEditing) {
         setName(response.data?.name || "");
         setEmail(response.data?.email || "");
+        setReminderEnabled(response.data?.reminderEnabled ?? true);
+        setReminderTiming(response.data?.reminderTiming || "1d");
       }
 
       setAlertError("");
@@ -38,9 +42,18 @@ function Profile() {
   };
 
   useEffect(() => {
-    refreshProfile();
+    // Avoid calling setState synchronously inside effects.
+    // Defer the async refresh to the next tick.
+    const id = setTimeout(() => {
+      refreshProfile();
+    }, 0);
+
+    return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+
+
 
   const startEditing = () => {
     setAlertMessage("");
@@ -70,6 +83,8 @@ function Profile() {
       await client.put("/users/profile", {
         name,
         email,
+        reminderEnabled,
+        reminderTiming,
       });
 
       setAlertMessage("Profile updated successfully");
@@ -170,6 +185,34 @@ function Profile() {
                           onChange={(e) => setEmail(e.target.value)}
                           required
                         />
+                      </div>
+
+                      <div className="field-group" style={{ marginBottom: 12 }}>
+                        <label htmlFor="reminder-enabled">Email Reminders</label>
+                        <select
+                          id="reminder-enabled"
+                          className="input-control"
+                          value={reminderEnabled ? "enabled" : "disabled"}
+                          onChange={(e) => setReminderEnabled(e.target.value === "enabled")}
+                        >
+                          <option value="enabled">Enable</option>
+                          <option value="disabled">Disable</option>
+                        </select>
+                      </div>
+
+                      <div className="field-group" style={{ marginBottom: 12 }}>
+                        <label htmlFor="reminder-timing">Reminder Timing</label>
+                        <select
+                          id="reminder-timing"
+                          className="input-control"
+                          value={reminderTiming}
+                          onChange={(e) => setReminderTiming(e.target.value)}
+                        >
+                          <option value="30m">30 minutes before</option>
+                          <option value="1h">1 hour before</option>
+                          <option value="6h">6 hours before</option>
+                          <option value="1d">1 day before</option>
+                        </select>
                       </div>
 
                       <div className="card-actions">

@@ -10,6 +10,7 @@ function EditTask() {
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("todo");
   const [assignedTo, setAssignedTo] = useState("");
+  const [dueDate, setDueDate] = useState("");
   const [board, setBoard] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const [attachments, setAttachments] = useState([]);
@@ -34,6 +35,8 @@ function EditTask() {
         setDescription(taskResponse.data.description);
         setStatus(taskResponse.data.status);
         setAssignedTo(taskResponse.data.assignedTo?._id || taskResponse.data.assignedTo || "");
+        setDueDate(
+  taskResponse.data.dueDate ? new Date(taskResponse.data.dueDate).toISOString().slice(0, 16): "");
         setAttachments(taskResponse.data.attachments || []);
         setBoard(boardResponse.data);
         setCurrentUser(userResponse.data);
@@ -53,6 +56,7 @@ function EditTask() {
         title,
         description,
         status,
+        dueDate: dueDate || null,
       };
 
       if (isOwner) {
@@ -158,6 +162,17 @@ function EditTask() {
               <option value="in-progress">In Progress</option>
               <option value="done">Done</option>
             </select>
+          </div>
+
+          <div className="field-group">
+            <label htmlFor="edit-task-due-date">Due Date</label>
+            <input
+              id="edit-task-due-date"
+              className="input-control"
+              type="datetime-local"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+            />
           </div>
 
           <div className="field-group">

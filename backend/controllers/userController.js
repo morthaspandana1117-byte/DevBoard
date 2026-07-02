@@ -13,7 +13,7 @@ const getProfile = async (req, res) => {
 
 const updateProfile = async (req, res) => {
   try {
-    const { name, email } = req.body;
+    const { name, email, reminderEnabled, reminderTiming } = req.body;
 
     if (email) {
       const existingUser = await User.findOne({ email }).select("_id");
@@ -30,6 +30,8 @@ const updateProfile = async (req, res) => {
       {
         ...(name ? { name } : {}),
         ...(email ? { email } : {}),
+        ...(reminderEnabled !== undefined ? { reminderEnabled } : {}),
+        ...(reminderTiming ? { reminderTiming } : {}),
       },
       {
         new: true,

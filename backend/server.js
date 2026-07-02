@@ -17,6 +17,7 @@ const userRoutes = require("./routes/userRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const { initSocket } = require("./socket");
+const { startReminderCron } = require("./utils/reminderService");
 
 const app = express();
 const server = http.createServer(app);
@@ -49,6 +50,8 @@ mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("MongoDB Connected");
+
+    startReminderCron();
   })
   .catch((err) => {
     console.log(err);

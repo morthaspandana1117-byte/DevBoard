@@ -28,7 +28,8 @@ function EditBoard() {
     e.preventDefault();
 
     try {
-      const response = await client.put(`/boards/${boardId}`, {
+        await client.put(`/boards/${boardId}`, {
+
         title,
       });
 
