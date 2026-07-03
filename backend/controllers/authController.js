@@ -22,10 +22,6 @@ const registerUser = async (req, res) => {
       password: hashedPassword,
     });
 
-    res.json({
-      message: "Email is available",
-    });
-
     res.status(201).json({
       message: "User registered successfully",
     });
